@@ -23,8 +23,13 @@ namespace Task.Generics {
 		///   { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) } => "01:00:00,00:00:30",
 		/// </example>
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
-			// TODO : Implement ConvertToString<T>
-			throw new NotImplementedException();
+			string str = "";
+			foreach (var i in list)
+			{
+				str += i;
+				str += ListSeparator;
+			}
+			return str.Remove(str.Length - 1, 1);
 		}
 
 		/// <summary>
@@ -43,10 +48,13 @@ namespace Task.Generics {
 		///  "Black,Blue,Cyan" for ConsoleColor => { ConsoleColor.Black, ConsoleColor.Blue, ConsoleColor.Cyan }
 		///  "1:00:00,0:00:30" for TimeSpan =>  { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) },
 		///  </example>
-		public static IEnumerable<T> ConvertToList<T>(this string list) {
+		public static IEnumerable<T> ConvertToList<T>(this string list)
+		{
 			// TODO : Implement ConvertToList<T>
 			// HINT : Use TypeConverter.ConvertFromString method to parse string value
-			throw new NotImplementedException();
+			System.ComponentModel.TypeConverter typeConverter = new System.ComponentModel.TypeConverter();
+			return (IEnumerable<T>)typeConverter.ConvertFromString(list);
+			//throw new NotImplementedException();
 		}
 
 	}
@@ -62,7 +70,9 @@ namespace Task.Generics {
 		/// <param name="index2">second index</param>
 		public static void SwapArrayElements<T>(this T[] array, int index1, int index2) {
 			// TODO : Implement SwapArrayElements<T>
-			throw new NotImplementedException();
+			T temp = array[index1];
+			array[index1] = array[index2];
+			array[index2] = temp;
 		}
 
 		/// <summary>
@@ -91,9 +101,109 @@ namespace Task.Generics {
 		///     { 1, "a", false },
 		///   }
 		/// </example>
-		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending) {
-			// TODO :SortTupleArray<T1, T2, T3>
+		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+			where T1 : IComparable<int>
+			where T2 : IComparable<string>
+			where T3 : IComparable<bool>
+		{
+			// TODO : SortTupleArray<T1, T2, T3>
 			// HINT : Add required constraints to generic types
+			if (ascending)
+			{
+				switch (sortedColumn)
+				{
+					case 0:
+						for (int i = 0; i < array.Length - 1; i++)
+						{
+							for (int j = 0; j < array.Length - i - 1; j++)
+							{
+								if (array[j].Item1.CompareTo(Convert.ToInt32(array[j + 1].Item1)) < 0)
+								{
+									var temp = array[j];
+									array[j] = array[j + 1];
+									array[j + 1] = temp;
+								}
+							}
+						}
+						break;
+					case 1:
+						for (int i = 0; i < array.Length - 1; i++)
+						{
+							for (int j = 0; j < array.Length - i - 1; j++)
+							{
+								if (array[j].Item2.CompareTo(Convert.ToString(array[j + 1].Item2)) > 0)
+								{
+									var temp = array[j];
+									array[j] = array[j + 1];
+									array[j + 1] = temp;
+								}
+							}
+						}
+						break;
+					case 2:
+						for (int i = 0; i < array.Length - 1; i++)
+						{
+							for (int j = 0; j < array.Length - i - 1; j++)
+							{
+								if (array[j].Item3.CompareTo(Convert.ToBoolean(array[j + 1].Item3)) < 0)
+								{
+									var temp = array[j];
+									array[j] = array[j + 1];
+									array[j + 1] = temp;
+								}
+							}
+						}
+						break;
+				}
+			}
+			else
+			{
+				switch (sortedColumn)
+				{
+					case 0:
+						for (int i = 0; i < array.Length - 1; i++)
+						{
+							for (int j = 0; j < array.Length - i - 1; j++)
+							{
+								if (array[j].Item1.CompareTo(Convert.ToInt32(array[j + 1].Item1)) < 0)
+								{
+									var temp = array[j];
+									array[j] = array[j + 1];
+									array[j + 1] = temp;
+								}
+							}
+						}
+						break;
+					case 1:
+						for (int i = 0; i < array.Length - 1; i++)
+						{
+							for (int j = 0; j < array.Length - i - 1; j++)
+							{
+								if (array[j].Item2.CompareTo(Convert.ToString(array[j + 1].Item2)) < 0)
+								{
+									var temp = array[j];
+									array[j] = array[j + 1];
+									array[j + 1] = temp;
+								}
+							}
+						}
+						break;
+					case 2:
+						for (int i = 0; i < array.Length - 1; i++)
+						{
+							for (int j = 0; j < array.Length - i - 1; j++)
+							{
+								if (array[j].Item3.CompareTo(Convert.ToBoolean(array[j + 1].Item3)) < 0)
+								{
+									var temp = array[j];
+									array[j] = array[j + 1];
+									array[j + 1] = temp;
+								}
+							}
+						}
+						break;
+				}
+			}
 		}
 
 	}
@@ -105,11 +215,32 @@ namespace Task.Generics {
 	///   This code should return the same MyService object every time:
 	///   MyService singleton = Singleton<MyService>.Instance;
 	/// </example>
-	public static class Singleton<T> {
+	public static class Singleton<T>
+		where T : new()
+		{
 		// TODO : Implement generic singleton class 
-
-		public static T Instance {
-			get { throw new NotImplementedException(); }
+		private static T _instance;
+		private static readonly object _lock = new object();
+		public static T Instance
+		{
+			get
+			{
+				if (_instance == null)
+				{
+					lock (_lock)
+					{
+						if (_instance == null)
+						{
+							_instance = new T();
+						}
+					}
+				}
+				return _instance;
+			}
+			set
+			{
+				_instance = value;
+			}
 		}
 	}
 
@@ -135,10 +266,22 @@ namespace Task.Generics {
 		///   If the third attemp fails then this exception should be rethrow to the application.
 		/// </example>
 		public static T TimeoutSafeInvoke<T>(this Func<T> function) {
+			int attempt = 0;
+			while (attempt <= 2)
+			{
+				try
+				{
+					return function();
+				}
+				catch
+				{
+					System.Diagnostics.Trace.WriteLine(Convert.ToString(new System.Net.WebException()));
+					attempt++;
+				}
+			}
 			// TODO : Implement TimeoutSafeInvoke<T>
-			throw new NotImplementedException();
+			throw new System.Net.WebException();
 		}
-
 
 		/// <summary>
 		///   Combines several predicates using logical AND operator 
@@ -164,8 +307,8 @@ namespace Task.Generics {
 		///       })
 		/// </example>
 		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-			// TODO : Implement CombinePredicates<T>
-			throw new NotImplementedException();
+			// TODO : Implement CombinePredicates<T>			
+			//throw new NotImplementedException();
 		}
 
 	}
