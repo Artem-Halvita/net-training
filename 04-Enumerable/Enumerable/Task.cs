@@ -20,9 +20,11 @@ namespace EnumerableTask {
         ///    { "A", "B", "C" } => { "A", "B", "C" }
         ///    { "a", "A", "", null } => { "A", "A", "", null }
         /// </example>
-        public IEnumerable<string> GetUppercaseStrings(IEnumerable<string> data) {
-            // TODO : Implement GetUppercaseStrings
-            throw new NotImplementedException();
+        public IEnumerable<string> GetUppercaseStrings(IEnumerable<string> data)
+        {
+            //return data.Select(x => !string.IsNullOrEmpty(x) ? x.ToUpper() : x);
+
+            return data.Select(i => i?.ToUpper());
         }
 
         /// <summary> Transforms an each string from sequence to its length</summary>
@@ -36,8 +38,10 @@ namespace EnumerableTask {
         ///   {"aa","bb","cc", "", "  ", null } => { 2, 2, 2, 0, 2, 0 }
         /// </example>
         public IEnumerable<int> GetStringsLength(IEnumerable<string> data) {
-            // TODO : Implement GetStringsLength
-            throw new NotImplementedException();
+
+            //return data.Select(x => x != null ? x.Length : 0);
+
+            return data.Select(x => x?.Length ?? 0);
         }
 
         /// <summary>Transforms int sequence to its square sequence, f(x) = x * x </summary>
@@ -51,8 +55,12 @@ namespace EnumerableTask {
         ///   { -1, -2, -3, -4, -5 } => { 1, 4, 9, 16, 25 }
         /// </example>
         public IEnumerable<long> GetSquareSequence(IEnumerable<int> data) {
-            // TODO : Implement GetSquareSequence
-            throw new NotImplementedException();
+            return data.Select(i => (long)i * i);
+
+            //return from i in data
+            //       select (long)i * i;
+
+            //return data.Select(x => Convert.ToInt64(x) * Convert.ToInt64(x));
         }
 
         /// <summary>Transforms int sequence to its moving sum sequence, 
@@ -70,11 +78,11 @@ namespace EnumerableTask {
         ///   { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } => { 1, 3, 6, 10, 15, 21, 28, 36, 45, 55 }
         ///   { 1, -1, 1, -1, -1 } => { 1, 0, 1, 0, 1 }
         /// </example>
-        public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data) {
-            // TODO : Implement GetMovingSumSequence
-            throw new NotImplementedException();
+        public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data)
+        {
+            long sum = 0;
+            return data.Select(x => sum = (x + sum));
         }
-
 
         /// <summary> Filters a string sequence by a prefix value (case insensitive)</summary>
         /// <param name="data">source string sequence</param>
@@ -91,9 +99,13 @@ namespace EnumerableTask {
         ///  { "a","b","c", null }, prefix=""   => { "a","b","c" }
         ///  { "a","b","c" }, prefix=null => exception
         /// </example>
-        public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
-            // TODO : Implement GetPrefixItems
-            throw new NotImplementedException();
+        public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix)
+        {
+            if (prefix == null)
+            {
+                throw new ArgumentNullException();
+            }
+            return data.Where(i => i != null && i.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary> Returns every second item from source sequence</summary>
@@ -106,8 +118,7 @@ namespace EnumerableTask {
         ///  { "a" } => { }
         /// </example>
         public IEnumerable<T> GetEvenItems<T>(IEnumerable<T> data) {
-            // TODO : Implement GetEvenItems
-            throw new NotImplementedException();
+            return data.Where((d, index) => index % 2 == 1);
         }
 
         /// <summary> Propagate every item in sequence its position times</summary>
@@ -140,10 +151,10 @@ namespace EnumerableTask {
         ///   { "", null } => { }
         ///   { } => { }
         /// </example>
-        public IEnumerable<char> GetUsedChars(IEnumerable<string> data) {
-            // TODO : Implement GetUsedChars
-            throw new NotImplementedException();
-        }
+            public IEnumerable<char> GetUsedChars(IEnumerable<string> data) {
+                // TODO : Implement GetUsedChars
+                throw new NotImplementedException();
+            }
 
 
         /// <summary> Converts a source sequence to a string</summary>
@@ -159,7 +170,6 @@ namespace EnumerableTask {
         ///   { "", "" } => ","
         /// </example>
         public string GetStringOfSequence<T>(IEnumerable<T> data) {
-            // TODO : Implement GetStringOfSequence
             throw new NotImplementedException();
         }
 
@@ -176,8 +186,12 @@ namespace EnumerableTask {
         ///   { 10, 10, 10, 10 } => { 10, 10, 10 }
         /// </example>
         public IEnumerable<int> Get3TopItems(IEnumerable<int> data) {
-            // TODO : Implement Get3TopItems
-            throw new NotImplementedException();
+
+            return data.OrderByDescending(i => i).Take(3);
+
+            //return (from i in data
+            //        orderby i descending
+            //        select i).Take(3);
         }
 
         /// <summary> Calculates the count of numbers that are greater then 10</summary>
@@ -192,8 +206,9 @@ namespace EnumerableTask {
         ///   { 1, 20, 30, 40 } => 3
         /// </example>
         public int GetCountOfGreaterThen10(IEnumerable<int> data) {
-            // TODO : Implement GetCountOfGreaterThen10
-            throw new NotImplementedException();
+            //return data.Where(x => x > 10).Count();
+
+            return data.Count(i => i > 10);
         }
 
 
@@ -224,8 +239,7 @@ namespace EnumerableTask {
         ///   { } => 0
         /// </example>
         public int GetCountOfStringsWithLengthEqualsTo3(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStringsWithLengthEqualsTo3
-            throw new NotImplementedException();
+            return data.Intersect(data).Where(x => (x != null && x.Length == 3)).Count();
         }
 
         /// <summary> Counts the number of each strings in sequence </summary>
