@@ -23,13 +23,7 @@ namespace Task.Generics {
 		///   { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) } => "01:00:00,00:00:30",
 		/// </example>
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
-			string str = "";
-			foreach (var i in list)
-			{
-				str += i;
-				str += ListSeparator;
-			}
-			return str.Remove(str.Length - 1, 1);
+			return string.Join(ListSeparator.ToString(), list);
 		}
 
 		/// <summary>
@@ -308,7 +302,7 @@ namespace Task.Generics {
 		/// </example>
 		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
 			// TODO : Implement CombinePredicates<T>			
-			//throw new NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 	}
