@@ -153,8 +153,7 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<char> GetUsedChars(IEnumerable<string> data)
         {
-            // TODO : Implement GetUsedChars
-            throw new NotImplementedException();
+            return string.Join("", data).Distinct();
         }
 
         /// <summary> Converts a source sequence to a string</summary>
@@ -223,8 +222,15 @@ namespace EnumerableTask {
         ///   { } => null
         /// </example>
         public string GetFirstContainsFirst(IEnumerable<string> data) {
-            // TODO : Implement GetFirstContainsFirst
-            throw new NotImplementedException();
+            string str = string.Join("", data.FirstOrDefault(d => d?.IndexOf("first", StringComparison.OrdinalIgnoreCase) > -1));
+            if (str == "")
+            {
+                return null;
+            }
+            else
+            {
+                return str;
+            }
         }
 
         /// <summary> Counts the number of unique strings with length=3 </summary>
@@ -253,10 +259,7 @@ namespace EnumerableTask {
         ///   { "aaa", "aaa", "aaa" } =>  { ("aaa", 3) } 
         ///   { } => { }
         /// </example>
-        public IEnumerable<Tuple<string,int>> GetCountOfStrings(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStrings
-            throw new NotImplementedException();
-        }
+        public IEnumerable<Tuple<string,int>> GetCountOfStrings(IEnumerable<string> data) => data.GroupBy(i => i).Select(i => { return new Tuple<string, int>(i.Key, i.Count()); });
 
         /// <summary> Counts the number of strings with max length in sequence </summary>
         /// <param name="data">source sequence</param>
@@ -271,8 +274,12 @@ namespace EnumerableTask {
         ///   { } => { }
         /// </example>
         public int GetCountOfStringsWithMaxLength(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStringsWithMaxLength
-            throw new NotImplementedException();
+            if (!data.Any())
+            {
+                return 0;
+            }
+            int maxLength = data.Max(i => i == null ? 0 : i.Length);
+            return data.Count(i => (i == null && maxLength == 0) || i?.Length == maxLength);
         }
 
 
@@ -301,7 +308,7 @@ namespace EnumerableTask {
 
        
         /// <summary>Counts the system log events of required type</summary>
-        /// <param name="value">the type of log event (Error, Event, Information etc)</param>
+        /// <param name="value">the type of log event (Error, Event, Information etc)</param>   
         /// <returns>
         ///   Returns the number of System log entries of specified type
         /// </returns>
@@ -403,10 +410,7 @@ namespace EnumerableTask {
         ///  {"one","two","three"}, { } => { }
         ///  { }, {"apple", "bananas" } => { }
         /// </example>
-        public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits) {
-            // TODO : Implement CombinesNumbersAndFruits
-            throw new NotImplementedException();
-        }
+        public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits) => numbers.Zip(fruits, (n, f) => n + " " + f);  // I don't know how to else concatenate "n" and "f" 
 
 
         /// <summary> Finds all chars that are common for all words </summary>
@@ -530,10 +534,7 @@ namespace EnumerableTask {
         /// { 3,2,1 } , { 1.0, 2.0, 3.0 } => false
         /// { -10 } => { -10.0 } => true
         /// </example>
-        public bool AreNumericListsEqual(IEnumerable<int> integers, IEnumerable<double> doubles) {
-            // TODO : Implement AreNumericListsEqual
-            throw new NotImplementedException();
-        }
+        public bool AreNumericListsEqual(IEnumerable<int> integers, IEnumerable<double> doubles) => integers.Select(i => (double)i).SequenceEqual(doubles);
         
         /// <summary>
         /// Finds the next after specified version from the list 
@@ -550,8 +551,17 @@ namespace EnumerableTask {
         ///    { "1.1", "1.2", "1.5", "2.0" }, "2.0" => null
         /// </example>
         public string GetNextVersionFromList(IEnumerable<string> versions, string currentVersion) {
-            // TODO : Implement GetNextVersionFromList
-            throw new NotImplementedException();
+            if (versions.Contains(currentVersion))
+            {
+                int index = versions.TakeWhile(i => i != currentVersion).Count();
+
+                if (index < (versions.Count() - 1))
+                {
+
+                    return string.Join("", versions.Where((v, i) => i == index + 1));
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -600,10 +610,7 @@ namespace EnumerableTask {
         ///  {"John"}, { } => { }
         ///  { }, {"Alice"} => { }
         /// </example>
-        public IEnumerable<string> GetAllPairs(IEnumerable<string> boys, IEnumerable<string> girls) {
-            // TODO : Implement GetAllPairs
-            throw new NotImplementedException();
-        }
+        public IEnumerable<string> GetAllPairs(IEnumerable<string> boys, IEnumerable<string> girls) => boys.SelectMany(i => girls.Select(j => i + "+" + j)); // I don't know how to else concatenate "i" and "j" too
 
 
         /// <summary>
