@@ -46,9 +46,13 @@ namespace Task.Generics {
 		{
 			// TODO : Implement ConvertToList<T>
 			// HINT : Use TypeConverter.ConvertFromString method to parse string value
-			System.ComponentModel.TypeConverter typeConverter = new System.ComponentModel.TypeConverter();
-			return (IEnumerable<T>)typeConverter.ConvertFromString(list);
-			//throw new NotImplementedException();
+
+			System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+			string[] strArray = list.Split(ListSeparator);
+			foreach (var item in strArray)
+			{
+				yield return (T)converter.ConvertFromString(item);
+			}
 		}
 
 	}
@@ -96,107 +100,13 @@ namespace Task.Generics {
 		///   }
 		/// </example>
 		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
-			where T1 : IComparable<int>
-			where T2 : IComparable<string>
-			where T3 : IComparable<bool>
 		{
 			// TODO : SortTupleArray<T1, T2, T3>
 			// HINT : Add required constraints to generic types
-			if (ascending)
+
+			if (sortedColumn > array.Length)
 			{
-				switch (sortedColumn)
-				{
-					case 0:
-						for (int i = 0; i < array.Length - 1; i++)
-						{
-							for (int j = 0; j < array.Length - i - 1; j++)
-							{
-								if (array[j].Item1.CompareTo(Convert.ToInt32(array[j + 1].Item1)) < 0)
-								{
-									var temp = array[j];
-									array[j] = array[j + 1];
-									array[j + 1] = temp;
-								}
-							}
-						}
-						break;
-					case 1:
-						for (int i = 0; i < array.Length - 1; i++)
-						{
-							for (int j = 0; j < array.Length - i - 1; j++)
-							{
-								if (array[j].Item2.CompareTo(Convert.ToString(array[j + 1].Item2)) > 0)
-								{
-									var temp = array[j];
-									array[j] = array[j + 1];
-									array[j + 1] = temp;
-								}
-							}
-						}
-						break;
-					case 2:
-						for (int i = 0; i < array.Length - 1; i++)
-						{
-							for (int j = 0; j < array.Length - i - 1; j++)
-							{
-								if (array[j].Item3.CompareTo(Convert.ToBoolean(array[j + 1].Item3)) < 0)
-								{
-									var temp = array[j];
-									array[j] = array[j + 1];
-									array[j + 1] = temp;
-								}
-							}
-						}
-						break;
-				}
-			}
-			else
-			{
-				switch (sortedColumn)
-				{
-					case 0:
-						for (int i = 0; i < array.Length - 1; i++)
-						{
-							for (int j = 0; j < array.Length - i - 1; j++)
-							{
-								if (array[j].Item1.CompareTo(Convert.ToInt32(array[j + 1].Item1)) < 0)
-								{
-									var temp = array[j];
-									array[j] = array[j + 1];
-									array[j + 1] = temp;
-								}
-							}
-						}
-						break;
-					case 1:
-						for (int i = 0; i < array.Length - 1; i++)
-						{
-							for (int j = 0; j < array.Length - i - 1; j++)
-							{
-								if (array[j].Item2.CompareTo(Convert.ToString(array[j + 1].Item2)) < 0)
-								{
-									var temp = array[j];
-									array[j] = array[j + 1];
-									array[j + 1] = temp;
-								}
-							}
-						}
-						break;
-					case 2:
-						for (int i = 0; i < array.Length - 1; i++)
-						{
-							for (int j = 0; j < array.Length - i - 1; j++)
-							{
-								if (array[j].Item3.CompareTo(Convert.ToBoolean(array[j + 1].Item3)) < 0)
-								{
-									var temp = array[j];
-									array[j] = array[j + 1];
-									array[j + 1] = temp;
-								}
-							}
-						}
-						break;
-				}
+				throw new IndexOutOfRangeException();
 			}
 		}
 
@@ -301,8 +211,19 @@ namespace Task.Generics {
 		///       })
 		/// </example>
 		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-			// TODO : Implement CombinePredicates<T>			
-			throw new NotImplementedException();
+			Predicate<T> result = PredicateMethod;
+			bool PredicateMethod(T value)
+			{
+				foreach (var item in predicates)
+				{
+					if (!item(value))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return result;
 		}
 
 	}

@@ -135,8 +135,7 @@ namespace EnumerableTask {
         ///   { 1,2,3,4,5} => { 1, 2,2, 3,3,3, 4,4,4,4, 5,5,5,5,5 }
         /// </example>
         public IEnumerable<T> PropagateItemsByPositionIndex<T>(IEnumerable<T> data) {
-            // TODO : Implement PropagateItemsByPositionIndex
-            throw new NotImplementedException();
+            return data.SelectMany((d, index) => Enumerable.Repeat(d, index + 1));
         }
 
         /// <summary>Finds all used char in string sequence</summary>
@@ -168,9 +167,7 @@ namespace EnumerableTask {
         ///   { "a", "b", "c", null, ""} => "a,b,c,null,"
         ///   { "", "" } => ","
         /// </example>
-        public string GetStringOfSequence<T>(IEnumerable<T> data) {
-            throw new NotImplementedException();
-        }
+        public string GetStringOfSequence<T>(IEnumerable<T> data) => string.Join(",", data.Select(i => i == null ? "null" : i.ToString()));
 
         /// <summary> Finds the 3 largest numbers from a sequence</summary>
         /// <param name="data">source sequence</param>
@@ -184,14 +181,7 @@ namespace EnumerableTask {
         ///   { 1,2,3,4,5,6,7,8,9,10 } => { 10, 9, 8 }
         ///   { 10, 10, 10, 10 } => { 10, 10, 10 }
         /// </example>
-        public IEnumerable<int> Get3TopItems(IEnumerable<int> data) {
-
-            return data.OrderByDescending(i => i).Take(3);
-
-            //return (from i in data
-            //        orderby i descending
-            //        select i).Take(3);
-        }
+        public IEnumerable<int> Get3TopItems(IEnumerable<int> data) => data.OrderByDescending(i => i).Take(3);
 
         /// <summary> Calculates the count of numbers that are greater then 10</summary>
         /// <param name="data">source sequence</param>
@@ -204,11 +194,7 @@ namespace EnumerableTask {
         ///   { 1, 2, 3, 11 } => 1
         ///   { 1, 20, 30, 40 } => 3
         /// </example>
-        public int GetCountOfGreaterThen10(IEnumerable<int> data) {
-            //return data.Where(x => x > 10).Count();
-
-            return data.Count(i => i > 10);
-        }
+        public int GetCountOfGreaterThen10(IEnumerable<int> data) => data.Count(i => i > 10);
 
 
         /// <summary> Find the first string that contains "first" (case insensitive search)</summary>
@@ -221,17 +207,7 @@ namespace EnumerableTask {
         ///   { "a", "IT IS FIRST", "first item", "I am really first!" } => "IT IS FIRST"
         ///   { } => null
         /// </example>
-        public string GetFirstContainsFirst(IEnumerable<string> data) {
-            string str = string.Join("", data.FirstOrDefault(d => d?.IndexOf("first", StringComparison.OrdinalIgnoreCase) > -1));
-            if (str == "")
-            {
-                return null;
-            }
-            else
-            {
-                return str;
-            }
-        }
+        public string GetFirstContainsFirst(IEnumerable<string> data) => data.FirstOrDefault(d => d?.IndexOf("first", StringComparison.OrdinalIgnoreCase) > -1);
 
         /// <summary> Counts the number of unique strings with length=3 </summary>
         /// <param name="data">source sequence</param>
@@ -244,9 +220,7 @@ namespace EnumerableTask {
         ///   { "aaa", "aaa", "aaa", "bbb" } => 2   ("aaa", "bbb") 
         ///   { } => 0
         /// </example>
-        public int GetCountOfStringsWithLengthEqualsTo3(IEnumerable<string> data) {
-            return data.Distinct().Count(i => (i != null && i.Length == 3));
-        }
+        public int GetCountOfStringsWithLengthEqualsTo3(IEnumerable<string> data) => data.Distinct().Count(i => (i != null && i.Length == 3));
 
         /// <summary> Counts the number of each strings in sequence </summary>
         /// <param name="data">source sequence</param>
@@ -313,9 +287,8 @@ namespace EnumerableTask {
         ///   Returns the number of System log entries of specified type
         /// </returns>
         public int GetSpecificEventEntriesCount(EventLogEntryType value) {
-            // TODO : Implement GetSpecificEventEntriesCount
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
-            throw new NotImplementedException();
+            return systemEvents.Cast<EventLogEntry>().Where(i => i.EntryType == value).Count();
         }
 
 
@@ -332,6 +305,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly) {
             // TODO : Implement GetIEnumerableTypesNames
+            // рефлексия
+            // 
+            //assembly.GetTypes().Where(i => i);
             throw new NotImplementedException();
         }
 
@@ -374,10 +350,7 @@ namespace EnumerableTask {
         ///   {"aaa","a1","b","c2","d","e3","f01234"} => {'5','6','7','8','9'}
         ///   {"a","b","c","9876543210"} => {}
         /// </example>
-        public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) {
-            // TODO : Implement GetMissingDigits
-            throw new NotImplementedException();
-        }
+        public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) => "0123456789".Except(data.SelectMany(i => i.Where(j => char.IsDigit(j))));
 
 
         /// <summary> Sorts digit names </summary>
@@ -392,10 +365,7 @@ namespace EnumerableTask {
         ///   {"nine","eight","nine","eight"} => {"eight","eight","nine","nine"}
         ///   {"one","one","one","zero"} => {"zero","one","one","one"}
         /// </example>
-        public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data) {
-            // TODO : Implement SortDigitNamesByNumericOrder
-            throw new NotImplementedException();
-        }
+        public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data) => data.OrderBy(i => Array.IndexOf(new string[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" }, i));
 
         /// <summary> Combines numbers and fruits </summary>
         /// <param name="numbers">string sequience of numbers</param>
@@ -424,10 +394,7 @@ namespace EnumerableTask {
         ///   {"a","aa","aaa"} => {"a"}
         ///   {"ab","ba","aabb","baba"} => {"a","b"}
         /// </example>
-        public IEnumerable<char> GetCommonChars(IEnumerable<string> data) {
-            // TODO : Implement GetCommonChars
-            throw new NotImplementedException();
-        }
+        public IEnumerable<char> GetCommonChars(IEnumerable<string> data) => data.DefaultIfEmpty("").Aggregate<IEnumerable<char>>((i, j) => i.Intersect(j));
 
         /// <summary> Calculates sum of all integers from object array </summary>
         /// <param name="data">source data</param>
