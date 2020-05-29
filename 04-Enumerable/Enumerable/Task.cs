@@ -276,7 +276,7 @@ namespace EnumerableTask {
             {
                 throw new ArgumentNullException();
             }
-            return data.Where(x => char.IsDigit(x)).Count();
+            return data.Count(x => char.IsDigit(x));
         }
 
 
@@ -288,7 +288,7 @@ namespace EnumerableTask {
         /// </returns>
         public int GetSpecificEventEntriesCount(EventLogEntryType value) {
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
-            return systemEvents.Cast<EventLogEntry>().Where(i => i.EntryType == value).Count();
+            return systemEvents.Cast<EventLogEntry>().Count(i => i.EntryType == value);
         }
 
 
@@ -307,8 +307,13 @@ namespace EnumerableTask {
             // TODO : Implement GetIEnumerableTypesNames
             // рефлексия
             // 
-            //assembly.GetTypes().Where(i => i);
-            throw new NotImplementedException();
+            foreach (var item in assembly.GetTypes())
+            {
+                if (item.GetInterface(typeof(System.Collections.IEnumerable).Name.ToString()) != null)
+                {
+                    yield return item.IsInterface.ToString();
+                }
+            }
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -323,8 +328,17 @@ namespace EnumerableTask {
         ///    {(1/1/2010, 10)  , (4/4/2010, 10), (10/10/2010, 10) } => { 10, 10, 0, 10 }
         /// </example>
         public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales) {
-            // TODO : Implement GetQuarterSales
-            throw new NotImplementedException();
+            int[] priceArray = new int[4];
+            foreach (var item in sales)
+            {
+                if (item == null || item.Item1 == null)
+                {
+                    continue;
+                }
+                int quarter = (item.Item1.Month - 1) / 3;
+                priceArray[quarter] += item.Item2;
+            }
+            return priceArray;
         }
 
 
@@ -350,7 +364,7 @@ namespace EnumerableTask {
         ///   {"aaa","a1","b","c2","d","e3","f01234"} => {'5','6','7','8','9'}
         ///   {"a","b","c","9876543210"} => {}
         /// </example>
-        public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) => "0123456789".Except(data.SelectMany(i => i.Where(j => char.IsDigit(j))));
+        public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) => "0123456789".Except(data.SelectMany(i => i));
 
 
         /// <summary> Sorts digit names </summary>
@@ -365,7 +379,10 @@ namespace EnumerableTask {
         ///   {"nine","eight","nine","eight"} => {"eight","eight","nine","nine"}
         ///   {"one","one","one","zero"} => {"zero","one","one","one"}
         /// </example>
-        public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data) => data.OrderBy(i => Array.IndexOf(new string[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" }, i));
+        public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data) {
+            string[] digits = new string[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+            return data.OrderBy(i => Array.IndexOf(digits, i));
+        }
 
         /// <summary> Combines numbers and fruits </summary>
         /// <param name="numbers">string sequience of numbers</param>
@@ -394,7 +411,7 @@ namespace EnumerableTask {
         ///   {"a","aa","aaa"} => {"a"}
         ///   {"ab","ba","aabb","baba"} => {"a","b"}
         /// </example>
-        public IEnumerable<char> GetCommonChars(IEnumerable<string> data) => data.DefaultIfEmpty("").Aggregate<IEnumerable<char>>((i, j) => i.Intersect(j));
+        public IEnumerable<char> GetCommonChars(IEnumerable<string> data) => data.DefaultIfEmpty(string.Empty).Aggregate<IEnumerable<char>>((i, j) => i.Intersect(j));
 
         /// <summary> Calculates sum of all integers from object array </summary>
         /// <param name="data">source data</param>
@@ -468,7 +485,7 @@ namespace EnumerableTask {
             {
                 return false;
             }
-            return data.SelectMany(i => i.ToCharArray()).All(i => char.IsUpper(i));
+            return data.All(i => i.All(j => char.IsUpper(j)));
         }
 
         /// <summary> Finds first subsequence of negative integers </summary>
@@ -517,19 +534,7 @@ namespace EnumerableTask {
         ///    { "1.1", "1.2", "1.5", "2.0" }, "1.4" => null
         ///    { "1.1", "1.2", "1.5", "2.0" }, "2.0" => null
         /// </example>
-        public string GetNextVersionFromList(IEnumerable<string> versions, string currentVersion) {
-            if (versions.Contains(currentVersion))
-            {
-                int index = versions.TakeWhile(i => i != currentVersion).Count();
-
-                if (index < (versions.Count() - 1))
-                {
-
-                    return string.Join("", versions.Where((v, i) => i == index + 1));
-                }
-            }
-            return null;
-        }
+        public string GetNextVersionFromList(IEnumerable<string> versions, string currentVersion) => versions.SkipWhile(i => i != currentVersion).Skip(1).FirstOrDefault();
 
         /// <summary>
         ///  Calcuates the sum of two vectors:
@@ -577,7 +582,7 @@ namespace EnumerableTask {
         ///  {"John"}, { } => { }
         ///  { }, {"Alice"} => { }
         /// </example>
-        public IEnumerable<string> GetAllPairs(IEnumerable<string> boys, IEnumerable<string> girls) => boys.SelectMany(i => girls.Select(j => i + "+" + j)); // I don't know how to else concatenate "i" and "j" too
+        public IEnumerable<string> GetAllPairs(IEnumerable<string> boys, IEnumerable<string> girls) => boys.SelectMany(i => girls.Select(j => $"{i}+{j}"));
 
 
         /// <summary>
@@ -593,16 +598,7 @@ namespace EnumerableTask {
         ///  { null, 1.0, true } => 1.0
         ///  { } => 0.0
         /// </example>
-        public double GetAverageOfDoubleValues(IEnumerable<object> data) {
-            try
-            {
-                return data.OfType<double>().Average();
-            }
-            catch
-            {
-                return 0.0;
-            }
-        }
+        public double GetAverageOfDoubleValues(IEnumerable<object> data) => data.OfType<double>().DefaultIfEmpty().Average();
 
     }
 

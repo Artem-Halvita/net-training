@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Collections.Tasks {
 
@@ -70,20 +71,14 @@ namespace Collections.Tasks {
                 throw new ArgumentNullException();
             }
             char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
-            List<string> listToReturn = new List<string>();
-            while (true)
+            string tempString;
+            while ((tempString = reader.ReadLine()) != null)
             {
-                string str = reader.ReadLine();
-                if (str != null)
+                foreach (var item in tempString.Split(delimeters, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    listToReturn.AddRange(str.Split(delimeters, StringSplitOptions.RemoveEmptyEntries));
-                }
-                else
-                {
-                    break;
+                    yield return item;
                 }
             }
-            return listToReturn;
         }
 
 
@@ -114,27 +109,21 @@ namespace Collections.Tasks {
             {
                 throw new ArgumentNullException();
             }
-            Stack<ITreeNode<T>> stackOfNodes = new Stack<ITreeNode<T>>();
-            Stack<ITreeNode<T>> localStack = new Stack<ITreeNode<T>>();
-            stackOfNodes.Push(root);
-            while(stackOfNodes.Count > 0)
+            Stack<ITreeNode<T>> stack = new Stack<ITreeNode<T>>();
+            stack.Push(root);
+            while(stack.Count > 0)
             {
-                yield return stackOfNodes.Peek().Data;
-                localStack.Clear();
-                if (stackOfNodes.Peek().Children == null)
+                var temp = stack.Pop();
+                if (temp.Children != null)
                 {
-                    stackOfNodes.Pop();
-                    continue;
+                    foreach (var item in temp.Children.Reverse())
+                    {
+                        stack.Push(item);
+                    }
                 }
-                foreach (var item in stackOfNodes.Pop().Children)
-                {
-                    localStack.Push(item);
-                }
-                foreach (var item in localStack)
-                {
-                    stackOfNodes.Push(item);
-                }
-            } 
+                yield return temp.Data;
+            }
+            
         }
 
         /// <summary>
@@ -163,20 +152,19 @@ namespace Collections.Tasks {
             {
                 throw new ArgumentNullException();
             }
-            LinkedList<ITreeNode<T>> Nodes = new LinkedList<ITreeNode<T>>();
-            Nodes.AddLast(root);
-            var currentNode = Nodes.First;
-            while (currentNode != null)
+            Queue<ITreeNode<T>> queue = new Queue<ITreeNode<T>>();
+            queue.Enqueue(root);
+            while(queue.Count > 0)
             {
-                yield return currentNode.Value.Data;
-                if (currentNode.Value.Children != null)
+                var temp = queue.Dequeue();
+                if (temp.Children != null)
                 {
-                    foreach (var item in currentNode.Value.Children)
+                    foreach (var item in temp.Children)
                     {
-                        Nodes.AddLast(item);
+                        queue.Enqueue(item);
                     }
                 }
-                currentNode = currentNode.Next;
+                yield return temp.Data;
             }
         }
 
@@ -227,11 +215,13 @@ namespace Collections.Tasks {
         ///   Person cached = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should get a Person from the cache
         /// </example>
         public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder) {
-            if (!dictionary.ContainsKey(key))
+            TValue value;
+            if (!dictionary.TryGetValue(key, out value))
             {
                 dictionary.Add(key, builder());
+                return dictionary[key];
             }
-            return dictionary[key];
+            return value;
         }
 
     }

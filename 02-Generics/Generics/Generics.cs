@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Task.Generics {
 
@@ -121,31 +122,9 @@ namespace Task.Generics {
 	/// </example>
 	public static class Singleton<T>
 		where T : new()
-		{
-		// TODO : Implement generic singleton class 
-		private static T _instance;
-		private static readonly object _lock = new object();
-		public static T Instance
-		{
-			get
-			{
-				if (_instance == null)
-				{
-					lock (_lock)
-					{
-						if (_instance == null)
-						{
-							_instance = new T();
-						}
-					}
-				}
-				return _instance;
-			}
-			set
-			{
-				_instance = value;
-			}
-		}
+	{
+		private static readonly Lazy<T> lazy = new Lazy<T>(() => new T());
+		public static T Instance { get { return lazy.Value; } }
 	}
 
 
@@ -210,22 +189,8 @@ namespace Task.Generics {
 		///            x=> x<10
 		///       })
 		/// </example>
-		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-			Predicate<T> result = PredicateMethod;
-			bool PredicateMethod(T value)
-			{
-				foreach (var item in predicates)
-				{
-					if (!item(value))
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-			return result;
-		}
-
+		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) => item => predicates.All(predicate => predicate(item));
+		
 	}
 
 
