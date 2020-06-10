@@ -38,8 +38,17 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <returns>property value of obj for required propertyPath</returns>
         public static T GetPropertyValue<T>(this object obj, string propertyPath) {
-            // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
+            string[] propertyName = propertyPath.Split('.');
+            var value = obj.GetType().GetProperty(propertyName[0]).GetValue(obj);
+
+            if (propertyName.Length == 1)
+            {
+                return (T)value;
+            }
+            else
+            {
+                return GetPropertyValue<T>(value, propertyPath.Replace(propertyName[0] + ".", ""));
+            }
         }
 
 
