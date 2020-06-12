@@ -16,8 +16,15 @@ namespace Reflection.Tasks
         /// <param name="assemblyName">name of assembly</param>
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
-            // TODO : Implement GetPublicObsoleteClasses method
-            throw new NotImplementedException();
+            var types = Assembly.Load(assemblyName).GetTypes();
+
+            foreach (var type in types)
+            {
+                if (type.IsClass && type.IsPublic && type.GetCustomAttribute(typeof(ObsoleteAttribute)) != null)
+                {
+                    yield return type.Name;
+                }
+            }
         }
 
         /// <summary>
