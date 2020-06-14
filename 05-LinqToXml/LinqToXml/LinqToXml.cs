@@ -82,10 +82,7 @@ namespace LinqToXml
         /// </summary>
         /// <param name="xmlRepresentation">Xml representation of document with Sentence, Word and Punctuation elements. (refer to ConcatenationStringSource.xml in Resources)</param>
         /// <returns>Concatenation of all this element values.</returns>
-        public static string GetConcatenationString(string xmlRepresentation)
-        {
-            throw new NotImplementedException();
-        }
+        public static string GetConcatenationString(string xmlRepresentation) => string.Join("", XDocument.Parse(xmlRepresentation).Root.Elements().Select(i => i.Value));
 
         /// <summary>
         /// Replaces all "customer" elements with "contact" elements with the same childs
