@@ -91,7 +91,9 @@ namespace LinqToXml
         /// <returns>Xml representation with contacts (refer to ReplaceCustomersWithContactsResult.xml in Resources)</returns>
         public static string ReplaceAllCustomersWithContacts(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument document = XDocument.Parse(xmlRepresentation);
+            document.Root.Elements("customer").ToList().ForEach(i => i.Name = "contact");
+            return document.ToString();
         }
 
         /// <summary>
