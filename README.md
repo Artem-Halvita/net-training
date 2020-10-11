@@ -17,8 +17,8 @@ C# training tasks repository.
 ### Progress
 
 2. Generics (13/14)
-3. Collections (11/13)
-4. IEnumerable (40/41)
+3. Collections\IEnumerable (11/13)
+4. Enumerable\Linq-2-Objects (40/41)
 5. LinqToXml (4/8)
 6. IQueryable (0)
 7. IO Streams (0)
